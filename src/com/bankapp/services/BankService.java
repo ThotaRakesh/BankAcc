@@ -4,12 +4,13 @@ import com.bankapp.dao.AccountDAO;
 import com.bankapp.daoImpl.AccountDAOImpl;
 import com.bankapp.models.Account;
 
+import java.util.Map;
 import java.util.Optional;
 
 public class BankService {
     private final AccountDAO accountDAO = new AccountDAOImpl();
 
-    public void openAccount(String name, String address, int pin, double initialDeposit, String accountType) {
+    public void openAccount( String name, String address, int pin, double initialDeposit, String accountType) {
         Account account = new Account(0, name, address, pin, initialDeposit, accountType);
         accountDAO.createAccount(account);
         System.out.println("Account created successfully!");
@@ -91,10 +92,16 @@ public class BankService {
     }
 
     public void viewAccountSummary() {
-        // Implement logic to fetch and display account summaries by type
+        Map<String, Long> accountSummary = accountDAO.getAccountSummaryByType();
+        System.out.println("--- Account Summary by Type ---");
+        accountSummary.forEach((type, count) -> System.out.println(type + ": " + count));
     }
 
     public void viewTransactionSummary() {
-        // Implement logic to fetch and display transaction summaries
+        Map<String, Double> transactionSummary = accountDAO.getTransactionSummary();
+        System.out.println("--- Transaction Summary ---");
+        System.out.println("Total Deposits: " + transactionSummary.getOrDefault("deposit", 0.0));
+        System.out.println("Total Withdrawals: " + transactionSummary.getOrDefault("withdrawal", 0.0));
     }
+
 }

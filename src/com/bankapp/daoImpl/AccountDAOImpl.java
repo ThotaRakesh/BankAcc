@@ -4,6 +4,8 @@ import com.bankapp.dao.AccountDAO;
 import com.bankapp.models.Account;
 import com.bankapp.utils.DBConnection;
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
@@ -74,6 +76,7 @@ public class AccountDAOImpl implements AccountDAO {
                 return Optional.of(account);
             }
         } catch (SQLException e) {
+
             e.printStackTrace();
         }
         return Optional.empty();
@@ -105,4 +108,40 @@ public class AccountDAOImpl implements AccountDAO {
         }
         return false;
     }
+    @Override
+    public Map<String, Long> getAccountSummaryByType() {
+        Map<String, Long> summary = new HashMap<>();
+        String query = "SELECT accountType, COUNT(*) AS count FROM accounts GROUP BY accountType";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                summary.put(rs.getString("accountType"), rs.getLong("count"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return summary;
+    }
+    @Override
+    public Map<String, Double> getTransactionSummary() {
+        Map<String, Double> summary = new HashMap<>();
+        String query = "SELECT transactionType, SUM(amount) AS total FROM transactions GROUP BY transactionType";
+
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                summary.put(rs.getString("transactionType"), rs.getDouble("total"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return summary;
+    }
+
+
 }
